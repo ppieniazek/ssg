@@ -4,8 +4,10 @@ import pathlib
 from block_markdown import extract_title, markdown_to_html_node
 
 
-def generate_page(from_path, template_path, dest_path):
-    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+def generate_page(from_path, template_path, dest_path, basepath="/"):
+    print(
+        f"Generating page from {from_path} to {dest_path} using {template_path} (basepath: {basepath})"
+    )
 
     with open(from_path, "r") as md:
         markdown_content = md.read()
@@ -20,6 +22,9 @@ def generate_page(from_path, template_path, dest_path):
     final_html = template_content.replace("{{ Title }}", title)
     final_html = final_html.replace("{{ Content }}", html_content_string)
 
+    final_html = final_html.replace('href="/', 'href="' + basepath)
+    final_html = final_html.replace('src="/', 'src="' + basepath)
+
     dest_dir = os.path.dirname(dest_path)
     if dest_dir:
         os.makedirs(dest_dir, exist_ok=True)
@@ -28,7 +33,9 @@ def generate_page(from_path, template_path, dest_path):
         html.write(final_html)
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(
+    dir_path_content, template_path, dest_dir_path, basepath="/"
+):
     if not os.path.exists(dest_dir_path):
         os.makedirs(dest_dir_path)
 
@@ -39,6 +46,10 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         if os.path.isfile(src_item_path):
             if item.endswith(".md"):
                 dest_html_path = pathlib.Path(dest_item_path).with_suffix(".html")
-                generate_page(src_item_path, template_path, str(dest_html_path))
+                generate_page(
+                    src_item_path, template_path, str(dest_html_path), basepath
+                )
         elif os.path.isdir(src_item_path):
-            generate_pages_recursive(src_item_path, template_path, dest_item_path)
+            generate_pages_recursive(
+                src_item_path, template_path, dest_item_path, basepath
+            )
