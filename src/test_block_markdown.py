@@ -3,6 +3,7 @@ import unittest
 from block_markdown import (
     BlockType,
     block_to_block_type,
+    extract_title,
     markdown_to_blocks,
     markdown_to_html_node,
 )
@@ -201,3 +202,40 @@ Paragraph after list.
             html,
             "<div><ol><li>One item <b>bold</b></li><li>Two item <code>code</code></li><li>Three item</li></ol><p>Paragraph after list.</p></div>",
         )
+
+    def test_extract_title(self):
+        markdown_content = """
+# This is the Main Title
+
+Some other content.
+## A Subtitle
+"""
+        self.assertEqual(extract_title(markdown_content), "This is the Main Title")
+
+    def test_extract_title_no_h1(self):
+        markdown_content = """
+## Not an H1 Title
+Some text.
+"""
+        with self.assertRaises(ValueError):
+            extract_title(markdown_content)
+
+    def test_extract_title_extra_whitespace(self):
+        markdown_content = "#   A Title with Spaces   "
+        self.assertEqual(extract_title(markdown_content), "A Title with Spaces")
+
+    def test_extract_title_h1_not_at_start(self):
+        markdown_content = """
+Some introductory text.
+# Actual Title
+"""
+        self.assertEqual(extract_title(markdown_content), "Actual Title")
+
+    def test_extract_title_empty_markdown(self):
+        markdown_content = ""
+        with self.assertRaises(ValueError):
+            extract_title(markdown_content)
+
+    def test_extract_title_only_h1(self):
+        markdown_content = "# Just a Title"
+        self.assertEqual(extract_title(markdown_content), "Just a Title")
