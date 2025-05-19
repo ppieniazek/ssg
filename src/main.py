@@ -1,20 +1,21 @@
 from copy_static import copy_directory_recursive
-from generation import generate_page
+from generation import generate_pages_recursive
 
 # Paths
 dir_path_static = "static"
 dir_path_public = "public"
-index_md_path = "content/index.md"
+dir_path_content = "content"
 template_path = "template.html"
-index_html_path = "public/index.html"
 
 
 def main():
+    print("Starting static site generation...")
     copy_directory_recursive(dir_path_static, dir_path_public)
 
-    generate_page(
-        from_path=index_md_path, template_path=template_path, dest_path=index_html_path
+    print(
+        f"Generating pages from '{dir_path_content}' to '{dir_path_public}' using '{template_path}' template..."
     )
+    generate_pages_recursive(dir_path_content, template_path, dir_path_public)
 
 
 if __name__ == "__main__":
